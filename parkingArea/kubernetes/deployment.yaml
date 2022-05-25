@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: parkingarea
+  labels:
+    app: parkingarea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: parkingarea
+  template:
+    metadata:
+      labels:
+        app: parkingarea
+    spec:
+      containers:
+        - name: parkingarea
+          image: 979050235289.dkr.ecr.ap-northeast-3.amazonaws.com/parkingarea:0.2
+          ports:
+            - containerPort: 8082
+          readinessProbe:
+            httpGet:
+              path: '/parkingarea'
+              port: 8082
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: '/parkingarea'
+              port: 8082
+            initialDelaySeconds: 120
+            timeoutSeconds: 2
+            periodSeconds: 5
+            failureThreshold: 5

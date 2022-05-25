@@ -1,0 +1,29 @@
+apiVersion: "extensions/v1beta1"
+kind: "Ingress"
+metadata: 
+  name: "team2-ingress"
+  annotations: 
+    kubernetes.io/ingress.class: "nginx"
+spec: 
+  rules: 
+    - 
+      http: 
+        paths: 
+          - 
+            path: /parkingarea
+            pathType: Prefix
+            backend: 
+              serviceName: parkingarea
+              servicePort: 8082
+          - 
+            path: /parkingGate
+            pathType: Prefix
+            backend: 
+              serviceName: parkinggate
+              servicePort: 8081
+          - 
+            path: /payment
+            pathType: Prefix
+            backend: 
+              serviceName: payment
+              servicePort: 8083
