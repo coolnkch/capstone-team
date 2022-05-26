@@ -702,7 +702,7 @@ Concurrency:		       96.02
     - 구현계획 마이크로 서비스: 기존 dashboard 와 paekarea 정보를 사용하여, 복수의 주차장 관리기능 추가
 
 ## 이벤트 스토밍 
-    ![image](https://user-images.githubusercontent.com/103608467/170415312-f155a881-22ec-4c19-a1c5-d41cd5c31417.png)
+![image](https://user-images.githubusercontent.com/103608467/170415312-f155a881-22ec-4c19-a1c5-d41cd5c31417.png)
 
 
 ## 헥사고날 아키텍처 변화 
