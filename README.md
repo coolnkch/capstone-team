@@ -402,11 +402,11 @@ http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazo
 # 비용 서비스 (payment) 를 잠시 내려놓음 (ctrl+c)
 
 #출차처리
-http PATCH :8081/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
-http PATCH :8081/parkings/21 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
+http PATCH :8081/parkings/20 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
+http PATCH :8081/parkings/21 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
 
-http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
-http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/21 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아1234   #Success
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/21 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아1234   #Success
 
 #주차장상태 확인
 http :8082/parkingZoneStatuses     # 주차 가능대수(numberOfCars) 변경 확인
