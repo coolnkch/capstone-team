@@ -307,11 +307,11 @@ public interface ParkingZoneStatusService {
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Fail
 http :8081/parkings carNo=22아1234 parkAreaId=A   #Fail
 
-#결제서비스 재기동
+#주차관리 재기동
 cd parkArea
 mvn spring-boot:run
 
-#주문처리
+#주차처리
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 ```
