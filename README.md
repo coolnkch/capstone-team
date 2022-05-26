@@ -552,6 +552,9 @@ siege -c20 -t40S -v --content-type "application/json" 'http://a257aa504567c4149b
 
 ```
 # deployment.yaml 의 readiness probe 의 설정:
+원본 : image: 979050235289.dkr.ecr.ap-northeast-3.amazonaws.com/parkinggate:0.4
+변경 : image: 979050235289.dkr.ecr.ap-northeast-3.amazonaws.com/parkinggate:0.5
+
 kubectl apply -f kubernetes/deployment.yaml
 ...
           readinessProbe:
