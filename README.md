@@ -478,60 +478,42 @@ public interface ParkingZoneStatusService {
 }
 
 ```
-fallback 코드
-```
-@Service
-public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
-
-    /**
-     * 주차장 fallback
-     */
-    public ParkingZoneStatus getParkingZoneStatus( String id) {
-        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@ " + id);
-        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
-        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
-        return null;
-    }
-
-}
-```
-
 * 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
 - 동시사용자 30명
 - 40초 동안 실시
 
 ```
-kubectl exec -it siege -- /bin/bash
-siege -c30 -t40S -v http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
-siege -c30 -t40S -v --content-type "application/json" 'http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments POST {"parkAreaId":"A", "paymentStatus": "PAID", "price":1562666}'
-siege -c20 -t40S -v --content-type "application/json" 'http://localhost:8081/parkings POST {"parkAreaId":"A", "carNo": "22아2222"'
-exit
+siege -c30 -t60S -v --content-type "application/json" 'http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkingZoneStatuses/A'
 
 .
 .
 .
-HTTP/1.1 201     1.50 secs:     432 bytes ==> POST http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments
-HTTP/1.1 201     1.72 secs:     432 bytes ==> POST http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments
-HTTP/1.1 201     1.81 secs:     432 bytes ==> POST http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments
-HTTP/1.1 201     1.26 secs:     432 bytes ==> POST http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments
-HTTP/1.1 201     1.07 secs:     432 bytes ==> POST http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.06 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.06 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.07 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.07 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.06 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
+HTTP/1.1 200     0.05 secs:     402 bytes ==> GET  /parkingZoneStatuses/A
 
-* 안죽음...
-:
 :
 Lifting the server siege...
-Transactions:                    377 hits
+Transactions:                  41097 hits
 Availability:                 100.00 %
-Elapsed time:                  19.55 secs
-Data transferred:               0.16 MB
-Response time:                  1.48 secs
-Transaction rate:              19.28 trans/sec
-Throughput:                     0.01 MB/sec
-Concurrency:                   28.60
-Successful transactions:         377
+Elapsed time:                  59.09 secs
+Data transferred:              15.76 MB
+Response time:                  0.04 secs
+Transaction rate:             695.50 trans/sec
+Throughput:                     0.27 MB/sec
+Concurrency:                   29.92
+Successful transactions:       41097
 Failed transactions:               0
-Longest transaction:            2.88
-Shortest transaction:           0.03
+Longest transaction:            0.24
+Shortest transaction:           0.02
 
 ```
 - 운영시스템이 죽지 않은것은 Autoscale (HPA) 적용으로 부하 분산되어 응답
