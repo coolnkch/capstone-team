@@ -456,7 +456,15 @@ istio : http://kiali.service.com/kiali/console/graph/namespaces/?traffic=grpc%2C
         perTryTimeout: 2s
         retryOn: 5xx,retriable-4xx,gateway-error,connect-failure,refused-stream
 ```
-
+- Hystrix 를 설정
+- parkingGate application.yml
+```
+hystrix:
+  command:
+    # 전역설정
+    default:
+      execution.isolation.thread.timeoutInMilliseconds: 1000
+```
 - 피호출 서비스(parkingArea의 ParkingZoneStatus) 의 임의 부하 처리 0.5 ~ 1.5초 전후로 정도 왔다갔다 하게
 ```
 # (parkingGate) ParkingZoneStatus.java (Entity)
@@ -524,6 +532,7 @@ Shortest transaction:           0.02
 ```
 - 운영시스템이 죽지 않은것은 Autoscale (HPA) 적용으로 부하 분산되어 응답
 - Retry 의 설정 (istio)
+- 작동 결과....
 
 ### 오토스케일 아웃
 확장 기능을 적용하고자 한다. 
