@@ -230,30 +230,39 @@ public interface ParkingRepository extends PagingAndSortingRepository<Parking, L
 ```
 # 주차장 초기화 10대 지정
 http :8082/parkingZoneStatuses id="A" numberOfCars=0 totalParkingSpots=10 availableStatus="Y"
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkingZoneStatuses id="A" numberOfCars=0 totalParkingSpots=10 availableStatus="Y"
 
 # 입차
 http :8081/parkings carNo=22아2222 parkAreaId=A
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings carNo=22아2222 parkAreaId=A
 
 # 입차 확인
 http :8082/parkAreas
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
 
 # 주차장 상태 확인
 http :8082/parkingZoneStatuses
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkingZoneStatuses
 
 # 출차 - 파라미터 입차에 맞게 변경
 http PATCH :8081/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
-# 주차장 상태 확인
+http PATCH http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
 
 # 비용 지불
 http :8083/payments parkAreaId="A" parkingId=24 paymentStatus=PAID price=1562666
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/payments parkAreaId="A" parkingId=24 paymentStatus=PAID price=1562666
+
 # 출차 확인
 http :8082/parkAreas
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
 
 # 지불확인
 http :8083/payments
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/payments
 
 # 대시보드확인
 http :8084/myParkingInfoes
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/myParkingInfoes
 
 ```
 
@@ -324,13 +333,19 @@ public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Fail
 http :8081/parkings carNo=22아1234 parkAreaId=A   #Fail
 
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings carNo=22아2222 parkAreaId=A   #Fail
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings carNo=22아1234 parkAreaId=A   #Fail
+
 #주차관리 재기동
 cd parkArea
 mvn spring-boot:run
 
 #입차요청 정상
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
-http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
+http :8081/parkings carNo=22아1234 parkAreaId=A   #Success
+
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings carNo=22아2222 parkAreaId=A
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings carNo=22아1234 parkAreaId=A
 ```
 
 
@@ -384,8 +399,12 @@ http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 http PATCH :8081/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
 http PATCH :8081/parkings/21 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
 
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222   #Success
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/21 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아1234   #Success
+
 #주차장상태 확인
 http :8082/parkingZoneStatuses     # 주차 가능대수(numberOfCars) 변경 확인
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkingZoneStatuses
 
 #결제 서비스 기동
 cd payment
@@ -393,9 +412,11 @@ mvn spring-boot:run
 
 #결제 상태 확인
 http :8083/payments     # 모든 결제의 상태가 "PAID"로 확인
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/payments     # 모든 결제의 상태가 "PAID"로 확인
 
 #주차 상태 확인
 http :8082/parkAreas  # 주차 상태가 "VACANT"로 확인
+http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
 ```
 
 
