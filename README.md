@@ -694,20 +694,18 @@ Concurrency:		       96.02
 
 # 신규 개발 조직의 추가
 
-  ![image](https://user-images.githubusercontent.com/487999/79684133-1d6c4300-826a-11ea-94a2-602e61814ebf.png)
+  ![image](https://user-images.githubusercontent.com/103608467/170414653-8421fa0b-875d-4597-bbf3-b00158f0161b.png)
 
 
 ## 마케팅팀의 추가
-    - KPI: 신규 고객의 유입률 증대와 기존 고객의 충성도 향상
-    - 구현계획 마이크로 서비스: 기존 customer 마이크로 서비스를 인수하며, 고객에 음식 및 맛집 추천 서비스 등을 제공할 예정
+    - KPI: 더많은 주차장을 유치하여 이익 상승(건물주님 네네 어서오세요)
+    - 구현계획 마이크로 서비스: 기존 dashboard 와 paekarea 정보를 사용하여, 복수의 주차장 관리기능 추가
 
 ## 이벤트 스토밍 
-    ![image](https://user-images.githubusercontent.com/487999/79685356-2b729180-8273-11ea-9361-a434065f2249.png)
-
+    ![image](https://user-images.githubusercontent.com/103608467/170415046-a018c49a-37b2-44c5-9230-f0d797783837.png)
 
 ## 헥사고날 아키텍처 변화 
-
-![image](https://user-images.githubusercontent.com/487999/79685243-1d704100-8272-11ea-8ef6-f4869c509996.png)
+![image](https://user-images.githubusercontent.com/103608467/170415078-ef2f7ec1-a3f5-4d46-adf2-60c57ce024ce.png)
 
 ## 구현  
 
@@ -717,38 +715,3 @@ Concurrency:		       96.02
 
 Request/Response 방식으로 구현하지 않았기 때문에 서비스가 더이상 불필요해져도 Deployment 에서 제거되면 기존 마이크로 서비스에 어떤 영향도 주지 않음.
 
-* [비교] 결제 (pay) 마이크로서비스의 경우 API 변화나 Retire 시에 app(주문) 마이크로 서비스의 변경을 초래함:
-
-예) API 변화시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
-
-                --> 
-
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제2(pay);
-
-    }
-```
-
-예) Retire 시
-```
-# Order.java (Entity)
-
-    @PostPersist
-    public void onPostPersist(){
-
-        /**
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
