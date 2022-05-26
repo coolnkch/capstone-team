@@ -324,11 +324,11 @@ public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Fail
 http :8081/parkings carNo=22아1234 parkAreaId=A   #Fail
 
-#결제서비스 재기동
+#주차관리 재기동
 cd parkArea
 mvn spring-boot:run
 
-#주문처리
+#입차요청 정상
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 ```
