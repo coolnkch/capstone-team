@@ -251,8 +251,8 @@ http :8082/parkingZoneStatuses
 http http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkingZoneStatuses
 
 # 출차 - 파라미터 입차에 맞게 변경
-http PATCH :8081/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
-http PATCH http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A outTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
+http PATCH :8081/parkings/20 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
+http PATCH http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings/20 parkAreaId=A inTime=2022-05-26T00:52:14.452+00:00 carNo=22아2222
 
 # 비용 지불
 http :8083/payments parkAreaId="A" parkingId=24 paymentStatus=PAID price=1562666
