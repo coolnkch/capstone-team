@@ -483,6 +483,7 @@ public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
 kubectl exec -it siege -- /bin/bash
 siege -c30 -t40S -v http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
 siege -c30 -t40S -v --content-type "application/json" 'http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments POST {"parkAreaId":"A", "paymentStatus": "PAID", "price":1562666}'
+siege -c20 -t40S -v --content-type "application/json" 'http://localhost:8081/parkings POST {"parkAreaId":"A", "carNo": "22아2222"'
 exit
 
 .
@@ -527,7 +528,7 @@ kubectl autoscale deployment parkingarea --cpu-percent=20 --min=1 --max=3
 
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
-siege -c20 -t40S -v http://127.0.0.1:8081/parkings carNo=22아2222 parkAreaId=A
+siege -c20 -t40S -v --content-type "application/json" 'http://localhost:8081/parkings POST {"parkAreaId":"A", "carNo": "22아2222"'
 ```
 
 ```
