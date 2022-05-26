@@ -2,10 +2,16 @@
 
 # 주차관리
 
-신규 건물 주차 관리 시스템을 구현하였습니다.
-- 체크포인트 : https://workflowy.com/s/2/YsBrOKdTenDMLAfG#/0c6df3a4d126
-- git : 
+건물주님을 위한 주차 관리 시스템을 구현하였습니다.
 
+- 체크포인트 : https://workflowy.com/s/2/YsBrOKdTenDMLAfG#/0c6df3a4d126
+- 구성원
+  - 김영민 : 구현(주), 구축 적용
+  - 김용수 : 구축 적용
+  - 남궁철 : 구현(부), 문서 작성
+  - 변재현 : 구축 적용
+  - 이현강 : 구축 적용
+  - 
 # Table of contents
 
 - [주차관리](#---)
