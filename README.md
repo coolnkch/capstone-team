@@ -547,6 +547,7 @@ kubectl autoscale deployment parkingarea --cpu-percent=20 --min=1 --max=3
 - seige 로 배포작업 직전에 워크로드를 모니터링 함.
 ```
 siege -c20 -t40S -v --content-type "application/json" 'http://localhost:8081/parkings POST {"parkAreaId":"A", "carNo": "22아2222"'
+siege -c20 -t40S -v --content-type "application/json" 'http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkings POST {"parkAreaId":"A", "carNo": "22아2222"'
 ```
 
 ```
