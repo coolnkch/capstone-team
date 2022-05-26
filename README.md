@@ -36,13 +36,13 @@
 
 비기능적 요구사항
 1. 트랜잭션
-    1. 결제가 되지 않으면 출차를 할수 없다  Sync 호출 
+    1. 주차장이 꽉 찼으면 입차를 할수 없다. Sync 호출 
+    1. 결제가 되지 않으면 출차를 할수 없다.
 1. 장애격리
-    1. 주차장관리가 비정상적이어도 고객이 입차는 가능하다  Async (event-driven), Eventual Consistency
-    1. 결제시스템이 과중되면 사용자를 잠시동안 받지 않고 결제를 잠시후에 하도록 유도한다  Circuit breaker, fallback
+    1. 입차후 주차된 내용은 입력이 되지 않을수 있다. Async (event-driven), Eventual Consistency
+    1. 결제시스템이 과중되면 결제를 잠시후에 하도록 유도한다  Circuit breaker, fallback
 1. 성능
-    1. 고객은 조차 정보 이력을 상시로 조회가 가능하다.  CQRS
-    1. 배달상태가 바뀔때마다 카톡 등으로 알림을 줄 수 있어야 한다  Event driven
+    1. 고객은 주차 정보/이력을 상시로 조회가 가능하다.  CQRS, Event driven
 
 
 # 체크포인트
@@ -264,61 +264,57 @@ http :8084/myParkingInfoes
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 주문(app)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 주차시 주차장 만차 여부를 확인하는 트랜잭션(동기식)을 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
 
-- 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+- 주차장 상태확인(ParkingZoneStatus.java)를 확인하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
-# (app) 결제이력Service.java
+# (parkingGate) ParkingZoneStatusService.java
 
-package fooddelivery.external;
-
-@FeignClient(name="pay", url="http://localhost:8082")//, fallback = 결제이력ServiceFallback.class)
-public interface 결제이력Service {
-
-    @RequestMapping(method= RequestMethod.POST, path="/결제이력s")
-    public void 결제(@RequestBody 결제이력 pay);
+@FeignClient(name="parkingArea", url="${api.path.parkingArea }")
+public interface ParkingZoneStatusService {
+    
+    @RequestMapping(method= RequestMethod.GET, path="/parkingZoneStatuses/{id}")
+    public ParkingZoneStatus getParkingZoneStatus(@PathVariable("id") String id);
 
 }
 ```
 
-- 주문을 받은 직후(@PostPersist) 결제를 요청하도록 처리
+- 입차요청시 즉시 주차장 상태 확인을 요청하도록 처리
 ```
-# Order.java (Entity)
+# Parking.java (Entity)
 
     @PostPersist
     public void onPostPersist(){
+        // Get request from ParkingZoneStatus
+        team.external.ParkingZoneStatus parkingZoneStatus =
+            Application.applicationContext.getBean(team.external.ParkingZoneStatusService.class)
+            .getId("A");
 
-        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
-        pay.setOrderId(getOrderId());
-        
-        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
-                .결제(pay);
-    }
+        if(!"Y".equals(parkingZoneStatus.getAvailableStatus())){
+            throw new RuntimeException("NO Paring Zone");
+        }
+    ....
 ```
 
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
+- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 주차관리시스템이 장애가 나면 입차도 안됨을 확인:
 
 
 ```
-# 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
+# 주차관리 (parkArea) 서비스를 잠시 내려놓음 (ctrl+c)
 
-#주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Fail
-http localhost:8081/orders item=피자 storeId=2   #Fail
+#입차요청
+http :8081/parkings carNo=22아2222 parkAreaId=A   #Fail
+http :8081/parkings carNo=22아1234 parkAreaId=A   #Fail
 
 #결제서비스 재기동
-cd 결제
+cd parkArea
 mvn spring-boot:run
 
 #주문처리
-http localhost:8081/orders item=통닭 storeId=1   #Success
-http localhost:8081/orders item=피자 storeId=2   #Success
+http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
+http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 ```
-
-- 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
-
-
 
 
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
