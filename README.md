@@ -268,18 +268,6 @@ http :8084/myParkingInfoes
 
 - 주차장 상태확인(ParkingZoneStatus.java)를 확인하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
-```
-# (parkingGate) ParkingZoneStatusService.java
-
-@FeignClient(name="parkingArea", url="${api.path.parkingArea }")
-public interface ParkingZoneStatusService {
-    
-    @RequestMapping(method= RequestMethod.GET, path="/parkingZoneStatuses/{id}")
-    public ParkingZoneStatus getParkingZoneStatus(@PathVariable("id") String id);
-
-}
-```
-
 - 입차요청시 즉시 주차장 상태 확인을 요청하도록 처리
 ```
 # Parking.java (Entity)
@@ -296,7 +284,36 @@ public interface ParkingZoneStatusService {
         }
     ....
 ```
+- 서비스(parkingGate의 ParkingZoneStatusService)에 fallback 설정
+```
+# (parkingGate) ParkingZoneStatusService.java
 
+@FeignClient(name="parkingArea", url="${api.path.parkingArea}", fallback = ParkingZoneStatusServiceImpl.class)
+public interface ParkingZoneStatusService {
+    
+    @RequestMapping(method= RequestMethod.GET, path="/parkingZoneStatuses/{id}")
+    public ParkingZoneStatus getParkingZoneStatus(@PathVariable("id") String id);
+
+}
+
+```
+fallback 코드
+```
+@Service
+public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
+
+    /**
+     * 주차장 fallback
+     */
+    public ParkingZoneStatus getParkingZoneStatus( String id) {
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@ " + id);
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
+        return null;
+    }
+
+}
+```
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 주차관리시스템이 장애가 나면 입차도 안됨을 확인:
 
 
@@ -307,11 +324,11 @@ public interface ParkingZoneStatusService {
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Fail
 http :8081/parkings carNo=22아1234 parkAreaId=A   #Fail
 
-#주차관리 재기동
+#결제서비스 재기동
 cd parkArea
 mvn spring-boot:run
 
-#주차처리
+#주문처리
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 ```
@@ -342,8 +359,6 @@ http :8081/parkings carNo=22아2222 parkAreaId=A   #Success
 - 주차장status서비스에서는 출차요청 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package fooddelivery;
-
 ...
 
     @StreamListener(KafkaProcessor.INPUT)
@@ -359,9 +374,8 @@ package fooddelivery;
 
 ```
 
-상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
 주차장관리의 주차장상태서비스(ParkingZoneStatus)는 결재 여부에 관계없이 입차/출차 정보를 가지고 구성되므로, payment 시스템에 문제가 있어 출차가 지연되더라도,
-주차공간 관리에는 문제가 없다. 다만 주차장상태서비스(ParkingZoneStatus)와 parkArea는 1개의 서비스에서 진행되므로 parkArea 서비으에 문제가 생기면 입차도 제한된다.
+주차공간 관리에는 문제가 없다. 다만 주차장상태서비스(ParkingZoneStatus)와 parkArea는 1개의 서비스에서 진행되므로 parkArea 서비스에 문제가 생기면 입차도 제한된다.
 
 ```
 # 비용 서비스 (payment) 를 잠시 내려놓음 (ctrl+c)
@@ -416,22 +430,49 @@ istio
         retryOn: 5xx,retriable-4xx,gateway-error,connect-failure,refused-stream
 ```
 
-- 피호출 서비스(결제:pay) 의 임의 부하 처리 1초 전후로 정도 왔다갔다 하게
+- 피호출 서비스(parkingArea의 ParkingZoneStatus) 의 임의 부하 처리 0.5 ~ 1.5초 전후로 정도 왔다갔다 하게
 ```
-# (Payment) Payment.java (Entity)
+# (parkingGate) ParkingZoneStatus.java (Entity)
 
-    @PostPersist
-    public void onPostPersist(){
-
-        ...
-        
+    @PostLoad
+    public void onPostLoad(){
         try {
             Thread.currentThread().sleep((long) (500 + Math.random() * 1000));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
     }
+```
+
+- 서비스(parkingGate의 ParkingZoneStatusService)에 fallback 설정
+```
+# (parkingGate) ParkingZoneStatusService.java
+
+@FeignClient(name="parkingArea", url="${api.path.parkingArea}", fallback = ParkingZoneStatusServiceImpl.class)
+public interface ParkingZoneStatusService {
+    
+    @RequestMapping(method= RequestMethod.GET, path="/parkingZoneStatuses/{id}")
+    public ParkingZoneStatus getParkingZoneStatus(@PathVariable("id") String id);
+
+}
+
+```
+fallback 코드
+```
+@Service
+public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
+
+    /**
+     * 주차장 fallback
+     */
+    public ParkingZoneStatus getParkingZoneStatus( String id) {
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@ " + id);
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
+        System.out.println("@@@@@@@ 주차장 조회가 지연 입니다. @@@@@@@@@@@@");
+        return null;
+    }
+
+}
 ```
 
 * 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
@@ -439,10 +480,10 @@ istio
 - 40초 동안 실시
 
 ```
-$kubectl exec -it siege -- /bin/bash
-$siege -c30 -t40S -v http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
-$siege -c30 -t40S -v --content-type "application/json" 'http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments POST {"parkAreaId":"A", "paymentStatus": "PAID", "price":1562666}'
-$exit
+kubectl exec -it siege -- /bin/bash
+siege -c30 -t40S -v http://a257aa504567c4149bb1f09e3b16157f-1620177609.ap-northeast-3.elb.amazonaws.com/parkAreas
+siege -c30 -t40S -v --content-type "application/json" 'http://accf493999aec48a39923ea68f6a57c5-1100443977.ap-northeast-3.elb.amazonaws.com/payments POST {"parkAreaId":"A", "paymentStatus": "PAID", "price":1562666}'
+exit
 
 .
 .
