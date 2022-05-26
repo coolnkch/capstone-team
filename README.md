@@ -331,7 +331,6 @@ public class ParkingZoneStatusServiceImpl implements ParkingZoneStatusService{
 ```
 - 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 주차관리시스템이 장애가 나면 입차도 안됨을 확인:
 
-
 ```
 # 주차관리 (parkArea) 서비스를 잠시 내려놓음 (ctrl+c)
 
@@ -436,7 +435,8 @@ git : https://github.com/coolnkch/capstone-team
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
-istio 
+istio : http://kiali.service.com/kiali/console/graph/namespaces/?traffic=grpc%2CgrpcRequest%2Chttp%2ChttpRequest%2Ctcp%2CtcpSent&graphType=versionedApp&namespaces=default&duration=60&refresh=10000&layout=dagre
+
 ```
 # team2-gateway.yaml
   gateways:
